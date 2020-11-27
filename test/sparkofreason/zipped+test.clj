@@ -1,6 +1,6 @@
-(ns provisdom.shreditor-test
+(ns sparkofreason.zipped-test
   (:require [clojure.test :refer :all]
-            [provisdom.shreditor :refer :all]))
+            [sparkofreason.zipped :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."

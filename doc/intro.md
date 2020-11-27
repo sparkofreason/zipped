@@ -1,3 +1,3 @@
-# Introduction to shreditor
+# Introduction to zipped
 
 TODO: write [great documentation](http://jacobian.org/writing/what-to-write/)

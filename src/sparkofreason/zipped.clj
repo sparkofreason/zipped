@@ -1,4 +1,4 @@
-(ns provisdom.shreditor
+(ns sparkofreason.zipped
   (:require [clojure.string :as string]
             [rewrite-cljc.zip :as z]
             [rewrite-cljc.node :as n]
@@ -8,7 +8,7 @@
 
 (defrecord ErrorNode [message string-value])
 
-(def empty-expr #provisdom.shreditor.ErrorNode["", ""])
+(def empty-expr #sparkofreason.zipped.ErrorNode["", ""])
 
 (def enclosure-matches
   {\" \"

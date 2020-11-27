@@ -1,46 +1,8 @@
-# shreditor
+# zipped
 
-FIXME: my new application.
+Prounced "zip-ed", for "zip editor".
 
-## Installation
-
-Download from https://github.com/provisdom/shreditor
-
-## Usage
-
-FIXME: explanation
-
-Run the project directly:
-
-    $ clojure -M -m provisdom.shreditor
-
-Run the project's tests (they'll fail until you edit them):
-
-    $ clojure -M:test:runner
-
-Build an uberjar:
-
-    $ clojure -M:uberjar
-
-Run that uberjar:
-
-    $ java -jar shreditor.jar
-
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
+The start of a zipper-based editor for Clojure code.
 
 ## License
 
