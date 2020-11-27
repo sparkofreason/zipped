@@ -3,7 +3,10 @@
         lread/cljc-rewrite-playground {:git/url "https://github.com/lread/rewrite-cljc-playground"
                                        :sha "cc8ded71f1ca056d4851f4664754e0e004e985ad"}}
  :aliases
- {:test {:extra-paths ["test"]
+ {:debug {:extra-deps {jpmonettas/flow-storm-debugger {:mvn/version "0.5.0"}
+                       jpmonettas/flow-storm {:mvn/version "0.4.2"}}
+          :main-opts ["-m" "flow-storm-debugger.main"]}
+  :test {:extra-paths ["test"]
          :extra-deps {org.clojure/test.check {:mvn/version "1.0.0"}}}
   :runner
   {:extra-deps {com.cognitect/test-runner
