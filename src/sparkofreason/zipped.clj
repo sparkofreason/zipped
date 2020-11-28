@@ -72,7 +72,6 @@
 
 (defmethod handle-keypress rewrite_cljc.node.token.TokenNode
   [node k]
-  (println node)
   (cond 
     (r/whitespace-or-boundary? k)
     (handle-keypress empty-expr k)
@@ -83,6 +82,15 @@
         (p/parse-string (str string-value k))
         (catch clojure.lang.ExceptionInfo ex
           node)))))
+
+(defmethod handle-keypress rewrite_cljc.node.whitespace.WhitespaceNode
+  [node k]
+  (cond
+    (r/whitespace? k)
+    (p/parse-string (str (:string-value node) k))
+    
+    :else
+    (handle-keypress empty-expr k)))
 
 (defmethod handle-keypress rewrite_cljc.node.keyword.KeywordNode
   [node k]
@@ -104,53 +112,64 @@
         (catch clojure.lang.ExceptionInfo ex
           node)))))
 
-(defmulti edit-pointer
-  (fn [loc] (type (first loc))))
+(defmulti init-edit
+  (fn [loc expr] (type (first loc))))
 
-(defmethod edit-pointer rewrite_cljc.node.forms.FormsNode
-  [loc]
-  (->EditPointer loc z/append-child))
+(defmethod init-edit rewrite_cljc.node.forms.FormsNode
+  [loc _]
+  (->Edit (->EditPointer loc z/append-child) empty-expr))
 
-(defmethod edit-pointer rewrite_cljc.node.seq.SeqNode
-  [loc]
-  (->EditPointer loc z/append-child))
+(defmethod init-edit rewrite_cljc.node.seq.SeqNode
+  [loc _]
+  (->Edit (->EditPointer loc z/append-child) empty-expr))
 
-(defmethod edit-pointer rewrite_cljc.node.token.TokenNode
-  [loc]
-  (->EditPointer loc z/replace))
+(defmethod init-edit rewrite_cljc.node.token.TokenNode
+  [loc expr]
+  (->Edit (->EditPointer loc z/replace) expr))
+
+(defmethod init-edit rewrite_cljc.node.whitespace.WhitespaceNode
+  [loc expr]
+  (->Edit (->EditPointer loc z/insert-right) empty-expr))
 
 ;;; Need multimethod to determine the expr for Edit, e.g. SeqNode should be empty-expr, TokenNode expr
-(defn init-edit
-  ([loc] (init-edit loc empty-expr))
-  ([loc expr]
-   (->Edit (edit-pointer loc) expr)))
 
 (defn update-node
   [edit k]
-  (let [{:keys [edit-ptr node]} edit
-        node' (handle-keypress node k)]
-    {:edit-ptr edit-ptr :node node'}))
+  (let [{:keys [edit-ptr node]} edit]
+    (handle-keypress node k)))
 
 (defn edit-loc
   [edit k]
-  (let [{:keys [edit-ptr node] :as edit'} (update-node edit k)]
-    (if (incomplete? (type node))
-      edit'
+  (let [{:keys [edit-ptr node]} edit
+        node' (update-node edit k)]
+    (cond 
+      (incomplete? (type node'))
+      (assoc edit :node node')
+
+      (= rewrite_cljc.node.whitespace.WhitespaceNode (type node'))
+      (->Edit (assoc edit-ptr :edit-fn z/insert-right) empty-expr)
+      
+      :else
       (let [{:keys [loc edit-fn]} edit-ptr
-            loc' (edit-fn loc node)]
-        (condp = edit-fn
-                    z/append-child (-> loc' z/down z/rightmost (init-edit node))
-                    z/replace (-> loc' (init-edit node)))))))
+            edit-fn' (if (and (= edit-fn z/replace) (not= (type node) (type node')))  
+                       z/insert-right
+                       edit-fn)
+            loc' (edit-fn' loc node')]
+        (condp = edit-fn'
+          z/append-child (-> loc' z/down z/rightmost (init-edit node'))
+          z/replace (-> loc' (init-edit node'))
+          z/insert-right (-> loc' (#(or (z/right %) %)) (init-edit node')))))))
 
 (comment 
  
  (r/whitespace-or-boundary? \/)
  
- (p/parse-string "")
+ (p/parse-string " ")
  (p/parse-string "@")
  (p/parse-string "#(")
  (p/parse-string "(")
  (pr-str (p/parse-string "foo"))
+ (prn (p/parse-string "foo"))
  
  (def empty (z/of-string ""))
  (-> empty
@@ -170,12 +189,15 @@
  (with-out-str
    (-> (z/of-string "#_(foo)") z/print-root))
  
- (z/of-string "")
+ (z/insert-right (z/of-string "foo") (p/parse-string "x"))
+ (z/sexpr (z/of-string "#inst \"2020-01-01\""))
+  
  (-> (z/of-string "#_(foo)") z/print-root)
  (-> (z/of-string "(foo bar) (bar foo)" ) )
- (-> (z/of-string "#:foo/bar{:doink :norb}"))
+ (-> (z/of-string "#:foo/bar{:doink :norb}") z/sexpr)
  (p/parse-string "::z/a")
- (p/parse-string "#:foo/bar{:doink :norb}")
+ (p/parse-string "#:foo.bar{:doink :norb}")
+ (-> (z/of-string "#:foo.bar{:doink :norb}"))
  (println :a/b)
  (identity {:foo :bar})
  )

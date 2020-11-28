@@ -1,5 +1,6 @@
 (ns sparkofreason.zipped-test
   (:require [clojure.test :refer :all]
+            [rewrite-cljc.zip :as z]
             [sparkofreason.zipped :refer :all]))
 
 (comment
@@ -15,10 +16,16 @@
 (edit-loc (init-edit (edit-pointer empty-zipper)) \()
 
 (-> empty-zipper
-    init-edit
+    (init-edit nil)
     (edit-loc \()
     (edit-loc \a)
-    (edit-loc \b))
+    (edit-loc \b)
+    (edit-loc \space)
+    (edit-loc \x)
+    (edit-loc \y)
+    :edit-ptr
+    :loc
+    (z/print-root))
 
 (handle-keypress empty-expr \()
 (handle-keypress empty-expr \[)
