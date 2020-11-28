@@ -2,10 +2,23 @@
   (:require [clojure.test :refer :all]
             [sparkofreason.zipped :refer :all]))
 
-(require '[flow-storm.api :as fsa])
-(fsa/connect)
+(comment
+ (require '[flow-storm.api :as fsa])
+ (fsa/connect)
+ 
+ (require '[vlaaad.reveal :as reveal])
+ (add-tap (reveal/ui))
+ )
 
 (def reader-dispatch (handle-keypress empty-expr "#"))
+
+(edit-loc (init-edit (edit-pointer empty-zipper)) \()
+
+(-> empty-zipper
+    init-edit
+    (edit-loc \()
+    (edit-loc \a)
+    (edit-loc \b))
 
 (handle-keypress empty-expr \()
 (handle-keypress empty-expr \[)
