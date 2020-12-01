@@ -7,7 +7,8 @@
                        jpmonettas/flow-storm {:mvn/version "0.4.2"}}
           :main-opts ["-m" "flow-storm-debugger.main"]}
   :test {:extra-paths ["test"]
-         :extra-deps {org.clojure/test.check {:mvn/version "1.0.0"}}}
+         :extra-deps {com.cognitect/transcriptor {:mvn/version "0.1.5"}
+                      expound/expound {:mvn/version "0.8.6"}}}
   :runner
   {:extra-deps {com.cognitect/test-runner
                 {:git/url "https://github.com/cognitect-labs/test-runner"

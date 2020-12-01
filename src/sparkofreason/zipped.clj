@@ -160,47 +160,54 @@
           z/replace (-> loc' (init-edit node'))
           z/insert-right (-> loc' (#(or (z/right %) %)) (init-edit node')))))))
 
-(comment 
- 
- (r/whitespace-or-boundary? \/)
- 
- (p/parse-string " ")
- (p/parse-string "@")
- (p/parse-string "#(")
- (p/parse-string "(")
- (pr-str (p/parse-string "foo"))
- (prn (p/parse-string "foo"))
- 
- (def empty (z/of-string ""))
- (-> empty
-   (z/insert-child (n/list-node []))
-   z/down
-   (z/insert-child (n/token-node 'foo)))
- 
- (-> empty
-   (z/insert-child (n/list-node []))
-   z/down
-   (z/insert-child (n/token-node 'foo))
-   (z/append-child (n/token-node 'baz))
-   z/down
-   (z/replace (n/token-node 'bar))
-   z/print)
- 
- (with-out-str
-   (-> (z/of-string "#_(foo)") z/print-root))
- 
- (z/insert-right (z/of-string "foo") (p/parse-string "x"))
- (z/sexpr (z/of-string "#inst \"2020-01-01\""))
-  
- (-> (z/of-string "#_(foo)") z/print-root)
- (-> (z/of-string "(foo bar) (bar foo)" ) )
- (-> (z/of-string "#:foo/bar{:doink :norb}") z/sexpr)
- (p/parse-string "::z/a")
- (p/parse-string "#:foo.bar{:doink :norb}")
- (-> (z/of-string "#:foo.bar{:doink :norb}"))
- (println :a/b)
- (identity {:foo :bar})
- )
+(comment
+
+  (r/whitespace-or-boundary? \/)
+  (r/linebreak? \newline)
+
+  (p/parse-string ".")
+  (p/parse-string "@")
+  (p/parse-string "#(")
+  (p/parse-string "(")
+  (pr-str (p/parse-string "foo"))
+  (prn (p/parse-string "foo"))
+
+  (def empty (z/of-string ""))
+  (-> empty
+      (z/insert-child (n/list-node []))
+      z/down
+      (z/insert-child (n/token-node 'foo)))
+
+  (-> empty
+      (z/insert-child (n/list-node []))
+      z/down
+      (z/insert-child (n/token-node 'foo))
+      (z/append-child (n/token-node 'baz))
+      z/down
+      (z/replace (n/token-node 'bar))
+      z/print)
+
+  (with-out-str
+    (-> (z/of-string "#_(foo)") z/print-root))
+
+  (z/insert-right (z/of-string "foo") (p/parse-string "x"))
+  (z/sexpr (z/of-string "#inst \"2020-01-01\""))
+  (z/find-next-value (-> "(foo #inst \"2020-01-01\")" z/of-string z/down) '(read-string "#inst \"2020-01-01\""))
+
+  (-> (z/of-string "#_(foo)") z/print-root)
+  (-> (z/of-string "(foo bar) (bar foo)"))
+  (-> (z/of-string "#:foo/bar{:doink :norb}") z/sexpr)
+  (p/parse-string "::z/a")
+  (p/parse-string "#:foo.bar{:doink :norb}")
+  (-> (z/of-string "#:foo{:doink 1}")
+      z/down
+      z/right
+      (z/append-child (n/keyword-node :bar))
+      (z/append-child (n/value 2))
+      (z/print-root))
+  (p/parse-string "{:foo 1 :bar}")
+  (println :a/b)
+  (identity {:foo :bar}))
 
 (defn -main
   "I don't do a whole lot ... yet."
